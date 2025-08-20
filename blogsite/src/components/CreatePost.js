@@ -4,7 +4,11 @@ import axios from 'axios';
 
 function CreatePost() {
 
-    return;
+    return(
+        <div className="container mt-4">
+            <h2>Create a New Post</h2>
+        </div>
+    );
 }
 
 export default CreatePost;
