@@ -19,5 +19,42 @@
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();
+
+    if ($result->num_rows === 1)
+    {
+        $post = $result->fetch_assoc();
+
+        $response = [
+            'status' => 'success',
+            'data' => [
+                'id' => $post['id'],
+                'title' => $post['title'],
+                'content' => $post['content'],
+                'author' => $post['author'],
+                'date' => date("l jS \of F Y", strtotime($post['publish_date'])),
+                'likes' => $post['numLikes'],
+                'dislikes' => $post['numDislikes']
+            ]
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+
+    }
+    else
+    {
+        $response = [
+            'status' => 'error',
+            'message' => 'Post not found'
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+
+    }
+
+    $stmt->close();
+    $conn->close();
+
    }
 ?>
