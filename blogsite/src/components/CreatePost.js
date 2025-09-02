@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function CreatePost() {
-
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [author, setAuthor] = useState('');
+    const [image, setImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -14,44 +14,49 @@ function CreatePost() {
 
     // Validation function
     const validateForm = () => {
-        if (!title.trim() || !content.trim() || !author.trim())
-        {
+        if (!title.trim() || !content.trim() || !author.trim()) {
             setError("Please fill in all the fields.");
             return false;
         }
         return true;
-    }
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setError(''); // reset error message on a new frorm submission
+        setError(''); // reset error message on a new form submission
 
-        if (!validateForm())
-        {
+        if (!validateForm()) {
             return;
         }
 
         setIsLoading(true);
 
-        try
-        {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/create-post.php`, {
-                title,
-                content,
-                author
-            });
+        try {
+            // Use FormData to send text + file
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+            formData.append('author', author);
+            if (image) {
+                formData.append('image', image);
+            }
+
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_BASE_URL}/create-post.php`,
+                formData,
+                { headers: { 'Content-Type': 'multipart/form-data' } }
+            );
+
             console.log(response.data);
             navigate('/');
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error);
             setError('Failed to create post. Please try again later.');
             setIsLoading(false);
         }
-    }
+    };
 
-    return(
+    return (
         <div className="container mt-4">
             <h2>Create a New Post</h2>
             {error && <div className="alert alert-danger" role="alert">{error}</div>}
@@ -92,9 +97,27 @@ function CreatePost() {
                         required
                     />
                 </div>
+                <div className="mb-3">
+                    <label htmlFor="image" className="form-label">
+                        Author Image (optional)
+                    </label>
+                    <input
+                        type="file"
+                        className="form-control"
+                        id="image"
+                        accept="image/*"
+                        onChange={(e) => setImage(e.target.files[0])}
+                    />
+                </div>
                 <button type="submit" className="btn btn-primary" disabled={isLoading}>
-                    {isLoading ? <span><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Creating post...</span> : 'Create Post'}
+                    {isLoading ? (
+                        <span>
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Creating post...
+                        </span>
+                    ) : (
+                        'Create Post'
+                    )}
                 </button>
             </form>
         </div>
