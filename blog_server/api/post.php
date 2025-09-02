@@ -33,7 +33,8 @@
                 'author' => $post['author'],
                 'date' => date("l jS \of F Y", strtotime($post['publish_date'])),
                 'likes' => $post['numLikes'],
-                'dislikes' => $post['numDislikes']
+                'dislikes' => $post['numDislikes'],
+                'imageName' => $post['imageName'] ?? null
             ]
         ];
 
