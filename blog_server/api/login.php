@@ -1,7 +1,16 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
+
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
-include "connect.php";
+
+require_once('../config/config.php');
+require_once('../config/database.php');
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -10,32 +19,34 @@ if (!isset($data['userName'], $data['password'])) {
     exit;
 }
 
-$userName = mysqli_real_escape_string($con, $data['userName']);
+$userName = $data['userName'];
 $password = $data['password'];
 
-// Find user
-$stmt = $con->prepare("SELECT registrationID, password FROM registrations WHERE userName = ?");
+// Lookup user
+$stmt = $conn->prepare("SELECT registrationID, userName, password, emailAddress FROM registrations WHERE userName = ?");
 $stmt->bind_param("s", $userName);
 $stmt->execute();
-$stmt->store_result();
+$result = $stmt->get_result();
 
-if ($stmt->num_rows === 1) {
-    $stmt->bind_result($id, $hash);
-    $stmt->fetch();
-
-    if (password_verify($password, $hash)) {
+if ($row = $result->fetch_assoc()) {
+    if (password_verify($password, $row['password'])) {
         $_SESSION['user'] = [
-            "id" => $id,
-            "userName" => $userName
+            "registrationID" => $row['registrationID'],
+            "userName" => $row['userName'],
+            "emailAddress" => $row['emailAddress']
         ];
-        echo json_encode(["success" => true, "message" => "Login successful"]);
+        echo json_encode([
+            "success" => true,
+            "message" => "Login successful",
+            "user" => $_SESSION['user']  // send back user
+        ]);
     } else {
-        echo json_encode(["success" => false, "message" => "Invalid credentials"]);
+        echo json_encode(["success" => false, "message" => "Invalid password"]);
     }
 } else {
     echo json_encode(["success" => false, "message" => "User not found"]);
 }
 
 $stmt->close();
-$con->close();
+$conn->close();
 ?>

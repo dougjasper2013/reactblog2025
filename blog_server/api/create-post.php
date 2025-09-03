@@ -2,9 +2,10 @@
 
 session_start();
 
-header("Access-Control-Allow-Origin: *");  // Or your frontend domain
+header("Access-Control-Allow-Origin: http://localhost:3000");  // Or your frontend domain
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
 
 require_once('../config/config.php');

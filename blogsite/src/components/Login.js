@@ -14,21 +14,24 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/login.php`,
-        { userName, password },
-        { withCredentials: true }
-      );
-      if (res.data.success) {
-        setUser(res.data.user);
-        navigate("/");
-      } else {
-        setError(res.data.message);
-      }
-    } catch (err) {
-      setError("Login failed");
+     try {
+    const res = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/login.php`,
+      { userName, password },
+      { withCredentials: true }
+    );
+    console.log("Login response:", res.data); //Add this
+    if (res.data.success) {
+      setUser(res.data.user);
+      navigate("/");
+    } else {
+      setError(res.data.message || "Invalid credentials");
     }
+  } catch (err) {
+    console.error("Axios login error:", err);
+    setError("Login failed");
+  }
+
   };
 
   return (

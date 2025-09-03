@@ -15,7 +15,8 @@ function PostList()
         const fetchPosts = async () => {
             setIsLoading(true);
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/posts.php?page=${currentPage}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/posts.php?page=${currentPage}`,
+                     { withCredentials: true });
                 setPosts(response.data.posts);
                 setTotalPosts(response.data.totalPosts);
                 setIsLoading(false);
