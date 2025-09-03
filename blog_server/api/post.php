@@ -1,8 +1,16 @@
 <?php
+   session_start(); 
 
    // Load configuration files
    require_once('../config/config.php');
    require_once('../config/database.php');
+
+   // 🔒 Require authentication
+    if (!isset($_SESSION['user'])) {
+        http_response_code(401);
+        echo json_encode(["success" => false, "message" => "Unauthorized"]);
+        exit;
+    }
 
    if ($_SERVER['REQUEST_METHOD'] === 'GET')
    {

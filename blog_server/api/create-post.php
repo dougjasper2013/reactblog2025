@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 header("Access-Control-Allow-Origin: *");  // Or your frontend domain
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -7,6 +9,13 @@ header("Content-Type: application/json");
 
 require_once('../config/config.php');
 require_once('../config/database.php');
+
+// 🔒 Require authentication
+if (!isset($_SESSION['user'])) {
+    http_response_code(401);
+    echo json_encode(["success" => false, "message" => "Unauthorized"]);
+    exit;
+}
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

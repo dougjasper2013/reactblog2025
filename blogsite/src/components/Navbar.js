@@ -1,35 +1,85 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Navbar = () => {
-    return(
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-                <Link className="navbar-brand" to="/">Blog Application</Link>
-                <button
-                    className="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
-                    aria-controls="navbarNav"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                    >
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav">
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/">Home</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/create-post">Create Post</Link>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    );
+  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+
+  // Fetch logged-in user info
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/checkAuth.php`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data && response.data.username) {
+          setUsername(response.data.username);
+        } else {
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        navigate("/login");
+      }
+    };
+
+    fetchUser();
+  }, [navigate]);
+
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/logout.php`);
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  };
+
+  return (
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+      <div className="container">
+        <Link className="navbar-brand" to="/">
+          BlogSite
+        </Link>
+        <div className="collapse navbar-collapse">
+          <ul className="navbar-nav me-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/">
+                Posts
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/create">
+                Create Post
+              </Link>
+            </li>
+          </ul>
+          <span className="navbar-text me-3">
+            Logged in as <strong>{username}</strong>
+          </span>
+          <button className="btn btn-outline-light" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
 };
 
 export default Navbar;
