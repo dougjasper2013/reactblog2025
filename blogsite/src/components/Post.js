@@ -9,7 +9,9 @@ const Post = () => {
  
     const fetchPost = async () => {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/post.php/post/${id}`);
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/post.php/post/${id}`,
+            { withCredentials: true } // send PHP session cookie
+          );
           const post = response.data.data;
           setPost(post);
         }
@@ -26,6 +28,7 @@ const Post = () => {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: true, // ✅ add this
       data: {
         post_id: id,
         vote_type: type,
