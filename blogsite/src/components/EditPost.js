@@ -151,9 +151,13 @@ const EditPost = () => {
           </div>
         </div>
  
-        {/* Submit Button */}
+        {/* Submit and Cancel Buttons */}
         <div className="text-end">
-          <button type="submit" className="btn btn-dark" disabled={isLoading}>
+          <button 
+            type="submit" 
+            className="btn btn-dark me-2" 
+            disabled={isLoading}
+          >
             {isLoading ? (
               <span>
                 <span
@@ -166,6 +170,14 @@ const EditPost = () => {
             ) : (
               "Save Changes"
             )}
+          </button>
+
+          <button 
+            type="button" 
+            className="btn btn-secondary"
+            onClick={() => navigate('/')}
+          >
+            Cancel
           </button>
         </div>
       </form>

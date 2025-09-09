@@ -7,6 +7,7 @@ function Register() {
   const [userName, setUserName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user"); // default role
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function Register() {
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/register.php`,
-        { userName, emailAddress, password }
+        { userName, emailAddress, password, role }
       );
       if (res.data.success) {
         setSuccess("Registration successful. You can now log in.");
@@ -67,6 +68,18 @@ function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+        </div>
+        <div className="mb-3">
+          <label>Role</label>
+          <select
+            className="form-control"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="guest">Guest</option>
+          </select>
         </div>
         <button className="btn btn-primary" type="submit">Register</button>
       </form>

@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import {useAuth} from "../context/AuthContext";
  
 function PostList() {
   const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState([true]);
+  const [isLoading, setIsLoading] = useState(true); // was [true]
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState('1');
   const [totalPosts, setTotalPosts] = useState('0');
   const postsPerPage = 4;
+  const { user } = useAuth();
  
-    useEffect(() => {
-    fetchPosts();
-  }, [currentPage]);
- 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
@@ -29,7 +27,11 @@ function PostList() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage]);
+ 
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
  
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
@@ -48,40 +50,43 @@ function PostList() {
     }
   };
  
-    const totalPages = Math.ceil(totalPosts / postsPerPage);
-    const goToPreviousPage = () => setCurrentPage(currentPage - 1);
-    const goToNextPage = () => setCurrentPage(currentPage + 1);
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+  const goToPreviousPage = () => setCurrentPage(currentPage - 1);
+  const goToNextPage = () => setCurrentPage(currentPage + 1);
  
   return (
     <div className="container mt-5">
       <h2 className="mb-5 ">Recent Posts</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       <div className="row">
-          {isLoading ? (
-            <p>Loading posts...</p>
-          ) : posts.length ? (
-              posts.map(post => (
-                <div className="col-md-6" key={post.id}>
-                  <div className="card mb-4 shadow-lg border-0">
-                    <div className="card-body">
-                      <h5 className="card-title">{post.title}</h5>
-                      <p className="card-text">By {post.author} on { new Date(post.publish_date).toLocaleDateString()}</p>
-                      <Link to={`/post/${post.id}`} className="btn btn-light text-dark border-dark me-4">Read More</Link>
-                      <Link to={`/edit/${post.id}`} className="btn btn-light text-dark border-dark me-4">Edit</Link>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleDelete(post.id)}
-                      >
-                        Delete
-                      </button>
- 
-                    </div>
-                  </div>    
-                </div>    
-              ))
-          ) : (
-            <p>No posts available.</p>
-          )}
+        {isLoading ? (
+          <p>Loading posts...</p>
+        ) : posts.length ? (
+          posts.map(post => (
+            <div className="col-md-6" key={post.id}>
+              <div className="card mb-4 shadow-lg border-0">
+                <div className="card-body">
+                  <h5 className="card-title">{post.title}</h5>
+                  <p className="card-text">By {post.author} on { new Date(post.publish_date).toLocaleDateString()}</p>
+                  <Link to={`/post/${post.id}`} className="btn btn-primary text-light me-2">Read More</Link>
+                   {user?.role === 'admin' && (
+                    <> 
+                  <Link to={`/edit/${post.id}`} className="btn btn-light text-dark me-2">Edit</Link>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(post.id)}
+                  >
+                    Delete
+                  </button>
+                  </>
+                   )}
+                </div>
+              </div>    
+            </div>    
+          ))
+        ) : (
+          <p>No posts available.</p>
+        )}
       </div>            
       {/* Pagination Code */}
       <nav aria-label="Page navigation">
@@ -101,7 +106,6 @@ function PostList() {
       </nav>
     </div>
   );
- 
 }
  
 export default PostList;

@@ -27,6 +27,9 @@ $userName = mysqli_real_escape_string($conn, $data['userName']);
 $emailAddress = mysqli_real_escape_string($conn, $data['emailAddress']);
 $passwordHash = password_hash($data['password'], PASSWORD_BCRYPT);
 
+// Set role (default to 'user' if not provided)
+$role = isset($data['role']) ? mysqli_real_escape_string($conn, $data['role']) : 'user';
+
 // Check if username or email already exists
 $check = $conn->prepare("SELECT registrationID FROM registrations WHERE userName = ? OR emailAddress = ?");
 $check->bind_param("ss", $userName, $emailAddress);
@@ -39,15 +42,16 @@ if ($check->num_rows > 0) {
 }
 $check->close();
 
-// Insert new user
-$stmt = $conn->prepare("INSERT INTO registrations (userName, password, emailAddress) VALUES (?, ?, ?)");
-$stmt->bind_param("sss", $userName, $passwordHash, $emailAddress);
+// Insert new user with role
+$stmt = $conn->prepare("INSERT INTO registrations (userName, password, emailAddress, role) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $userName, $passwordHash, $emailAddress, $role);
 
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Registration successful"]);
 } else {
     echo json_encode(["success" => false, "message" => "Registration failed"]);
 }
+
 $stmt->close();
 $conn->close();
 ?>
