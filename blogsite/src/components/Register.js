@@ -10,6 +10,7 @@ function Register() {
   const [role, setRole] = useState("user"); // default role
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [secretKey, setSecretKey] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -20,7 +21,7 @@ function Register() {
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/register.php`,
-        { userName, emailAddress, password, role }
+        { userName, emailAddress, password, role, secretKey }
       );
       if (res.data.success) {
         setSuccess("Registration successful. You can now log in.");
@@ -81,6 +82,19 @@ function Register() {
             <option value="guest">Guest</option>
           </select>
         </div>
+
+        {role === "admin" && (
+          <div className="mb-3">
+            <label>Admin Secret</label>
+            <input
+              type="password"
+              className="form-control"
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
+              required
+            />
+          </div>
+        )}
         <button className="btn btn-primary" type="submit">Register</button>
       </form>
       <p className="mt-3">
