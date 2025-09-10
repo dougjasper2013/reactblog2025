@@ -1,0 +1,15 @@
+{
+    "name": "douglasjasper/blog_server",
+    "autoload": {
+        "psr-4": {
+            "Douglasjasper\\BlogServer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Douglas Jasper",
+            "email": "doug.jasper@trios.com"
+        }
+    ],
+    "require": {}
+}

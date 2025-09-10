@@ -15,6 +15,7 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Register clicked', { userName, emailAddress, password, role, secretKey });
     setError("");
     setSuccess("");
 
@@ -23,6 +24,7 @@ function Register() {
         `${process.env.REACT_APP_API_BASE_URL}/register.php`,
         { userName, emailAddress, password, role, secretKey }
       );
+      console.log("Response from server:", res.data);
       if (res.data.success) {
         setSuccess("Registration successful. You can now log in.");
         setTimeout(() => navigate("/login"), 1500);
